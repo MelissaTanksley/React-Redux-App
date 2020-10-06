@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardImg,
@@ -6,7 +6,7 @@ import {
   CardBody,
   CardTitle,
   CardSubtitle,
-  UncontrolledCollapse,
+  Collapse,
   Button,
   Modal,
   ModalHeader,
@@ -14,79 +14,128 @@ import {
   ModalFooter,
   ButtonGroup,
 } from "reactstrap";
+import { connect } from "react-redux";
 
-function Beer(props) {
+const Beer = (props) => {
   //styling
+  const {beer} = props;
+
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleFood = () => setIsOpen(!isOpen);
+  const [mIsOpen, setMIsOpen] = useState(false);
+  const toggleMethod = () => setMIsOpen(!mIsOpen);
+
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
 
   return (
     <div>
-      <Card>
+      <Card style={{ maxWidth: 300 }}>
         <CardBody>
-          <CardTitle>{/* Name */}</CardTitle>
-          <CardSubtitle>{/* Tagline */}</CardSubtitle>
+          <CardTitle>{beer.name}</CardTitle>
+          <CardSubtitle>{beer.tagline}</CardSubtitle>
         </CardBody>
-        <CardImg width="100%" src="/assets/318x180.svg" alt="Card image cap" />
-        {/* image_url */}
+        <CardImg
+          style={{ maxHeight: 300, maxWidth: 100, alignSelf: "center" }}
+          width="100%"
+          src={beer.image_url}
+          alt={beer.name}
+        />
         <CardBody>
-          <CardSubtitle>{/* first_brewed, contributed_by */}</CardSubtitle>
-          <CardText>{/* Description*/}</CardText>
+          <CardSubtitle>
+            {beer.contributed_by}
+            {beer.first_brewed}
+          </CardSubtitle>
+          <CardText>{beer.description}</CardText>
 
           <ButtonGroup>
             <Button
               color="primary"
-              id="toggler1"
+              onClick={toggleFood}
               style={{ marginBottom: "1rem" }}
             >
               Food Pairing
             </Button>
             <Button
               color="primary"
-              id="toggler2"
+              onClick={toggleMethod}
               style={{ marginBottom: "1rem" }}
             >
               Method
             </Button>
-            <Button color="danger" onClick={toggle}>
+            <Button
+              color="primary"
+              onClick={toggle}
+              style={{ marginBottom: "1rem" }}
+            >
               Ingredients
             </Button>
           </ButtonGroup>
 
-          <UncontrolledCollapse toggler="#toggler1">
+          <Collapse isOpen={isOpen}>
             <Card>
               <CardBody>
-                {/* map over food_pairing with <CardText> </CardText> */}
+                {beer.food_pairing.map((item) => {
+                  return <CardText> {item} </CardText>;
+                })}
               </CardBody>
             </Card>
-          </UncontrolledCollapse>
+          </Collapse>
 
-          <UncontrolledCollapse toggler="#toggler2">
+          <Collapse isOpen={mIsOpen}>
             <Card>
               <CardBody>
-                {/* map over method with <CardText> </CardText> */}
+                {beer.method.mash_temp.map((piece) => {
+                  return (
+                    <CardText>
+                      Mash at {piece.temp.value} degrees {piece.temp.unit} for{" "}
+                      {piece.duration} minutes.
+                    </CardText>
+                  );
+                })}
+                <CardText>
+                  Ferment at {beer.method.fermentation.temp.value} degrees{" "}
+                  {beer.method.fermentation.unit}.
+                </CardText>
+                <CardText>{beer.method.twist}</CardText>
+                <CardText>{beer.brewers_tips}</CardText>
               </CardBody>
             </Card>
-          </UncontrolledCollapse>
+          </Collapse>
         </CardBody>
       </Card>
 
       <Modal isOpen={modal} toggle={toggle}>
-        <ModalHeader toggle={toggle}>Modal title</ModalHeader>
+        <ModalHeader toggle={toggle}>Ingredients</ModalHeader>
         <ModalBody>
-          {/* map over ingredients with <CardText> </CardText> */}
+          Malt:
+          {beer.ingredients.malt.map((malt) => {
+            return (
+              <CardText>
+                {malt.name} : {malt.amount.value}
+                {malt.amount.unit}{" "}
+              </CardText>
+            );
+          })}
+          Hops:
+          {beer.ingredients.hops.map((hops) => {
+            return (
+              <CardText>
+                {hops.name} : {hops.amount.value}
+                {hops.amount.unit}{" "}
+              </CardText>
+            );
+          })}
+          Yeast:<CardText>{beer.ingredients.yeast}</CardText>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={toggle}>
-            Do Something
-          </Button>{" "}
           <Button color="secondary" onClick={toggle}>
-            Cancel
+            Close
           </Button>
         </ModalFooter>
       </Modal>
     </div>
   );
-}
+};
 
 export default Beer;
